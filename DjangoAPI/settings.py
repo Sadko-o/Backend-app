@@ -12,8 +12,12 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 
 from pathlib import Path
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
+# Build paths inside the project like this: BASE_DIR / 'subdir'
+
+#   WARNING: The script gunicorn is installed in '/Library/Frameworks/Python.framework/Versions/3.7/bin' which is not on PATH.
+#   Consider adding this directory to PATH or, if you prefer to suppress this warning, use --no-warn-script-location.
 BASE_DIR = Path(__file__).resolve().parent.parent
+Path.joinpath(BASE_DIR, '/Library/Frameworks/Python.framework/Versions/3.7/bin')
 
 
 # Quick-start development settings - unsuitable for production
