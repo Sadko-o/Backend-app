@@ -87,10 +87,10 @@ WSGI_APPLICATION = 'DjangoAPI.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME':'hospital',
+        'NAME':'railway',
         'USER': 'postgres',
-        'PASSWORD': 'googlestep',
-        'HOST':'localhost',
+        'PASSWORD': 'HdwpZC9H2wEXqwFnsi62',
+        'HOST':'containers-us-west-132.railway.app',
         'PORT': '5757',
     }
 }
