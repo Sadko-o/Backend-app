@@ -91,7 +91,7 @@ DATABASES = {
         'USER': 'postgres',
         'PASSWORD': 'googlestep',
         'HOST':'localhost',
-        'PORT': '5432',
+        'PORT': '5757',
     }
 }
 
