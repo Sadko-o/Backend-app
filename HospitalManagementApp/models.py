@@ -1,9 +1,10 @@
 from django.db import models
-# import _datetime
+import _datetime
 
 class DiseaseType(models.Model):
     diseaseTypeId = models.IntegerField(primary_key=True, default='0')
     diseaseTypeDescription = models.CharField(max_length=140)
+    
 class Disease(models.Model):
     disease_code = models.CharField(max_length=50, primary_key=True)
     pathogen = models.CharField(max_length=20)
