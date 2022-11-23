@@ -17,7 +17,7 @@ class Disease(models.Model):
 
 class Discover(models.Model):
     cname = models.OneToOneField(Country, primary_key=True, on_delete=models.CASCADE)
-    disease_code = models.ForeignKey(Disease, on_delete=models.CASCADE)
+    disease_code = models.ForeignKey(Disease, primary_key=True, on_delete=models.CASCADE)
     first_enc_date = models.DateField(default= _datetime.datetime.now)
 
 class Users(models.Model):
@@ -38,12 +38,12 @@ class Doctor(models.Model):
 
 class Specialize(models.Model):
     diseaseTypeId = models.ForeignKey(DiseaseType, default=None, on_delete=models.CASCADE, primary_key=True)
-    email = models.ForeignKey(Users, on_delete=models.CASCADE)
+    email = models.ForeignKey(Users, primary_key=True, on_delete=models.CASCADE)
 
 class Record(models.Model):
     email = models.ForeignKey(PublicServant, on_delete=models.CASCADE, primary_key=True)
-    cname = models.ForeignKey(Country, on_delete=models.CASCADE)
-    disease_code = models.ForeignKey(Disease, on_delete=models.CASCADE)
+    cname = models.ForeignKey(Country, on_delete=models.CASCADE, primary_key=True)
+    disease_code = models.ForeignKey(Disease, on_delete=models.CASCADE, primary_key=True)
     total_deaths = models.IntegerField(blank=True, null=True)
     total_patients = models.IntegerField( blank=True, null=True)
 
