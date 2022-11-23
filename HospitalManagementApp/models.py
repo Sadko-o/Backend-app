@@ -1,15 +1,16 @@
 from django.db import models
-import _datetime
+
+# Create your models here.
 
 class DiseaseType(models.Model):
     diseaseTypeId = models.IntegerField(primary_key=True, default='0')
     diseaseTypeDescription = models.CharField(max_length=140)
-    
+
 class Disease(models.Model):
     disease_code = models.CharField(max_length=50, primary_key=True)
     pathogen = models.CharField(max_length=20)
     description = models.CharField(max_length=140)
-    id = models.ForeignKey(DiseaseType, on_delete=models.CASCADE)
+    diseaseTypeId = models.ForeignKey(DiseaseType, on_delete=models.CASCADE)
 
 class Country(models.Model):
     cname = models.CharField(max_length=50, primary_key=True)
@@ -37,7 +38,7 @@ class Doctor(models.Model):
     degree = models.CharField(max_length=20)
 
 class Specialize(models.Model):
-    diseaseid = models.ForeignKey(DiseaseType, on_delete=models.CASCADE)
+    diseaseTypeId = models.ForeignKey(DiseaseType, on_delete=models.CASCADE)
     email = models.ForeignKey(Doctor, on_delete=models.CASCADE)
 
 class Record(models.Model):
