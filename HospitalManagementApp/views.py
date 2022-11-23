@@ -338,18 +338,17 @@
 
 
 
-from django.shortcuts import render
+
+
+from django.core.files.storage import default_storage
+from sqlalchemy import create_engine
+from sqlalchemy import text
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.parsers import JSONParser
 from django.http.response import JsonResponse
-
-from HeathcareApp.models import *
-from HeathcareApp.serializers import *
-from django.core.files.storage import default_storage
-
-from sqlalchemy import create_engine
-from sqlalchemy import text
+from HospitalManagementApp.models import *
+from HospitalManagementApp.serializers import *
 
 # Create your views here.
 
