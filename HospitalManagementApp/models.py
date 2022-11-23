@@ -1,27 +1,26 @@
 from django.db import models
-import _datetime
+# import _datetime
 
 class DiseaseType(models.Model):
-    diseaseTypeId = models.IntegerField(primary_key=True,  unique=False, null=False)
+    diseaseTypeId = models.IntegerField(primary_key=True, default='0')
     diseaseTypeDescription = models.CharField(max_length=140)
-
-class Country(models.Model):
-    cname = models.CharField(max_length=50,  unique=False, primary_key=True)
-    population = models.BigIntegerField()
-
 class Disease(models.Model):
-    disease_code = models.CharField(max_length=50,  unique=False, primary_key=True)
+    disease_code = models.CharField(max_length=50, primary_key=True)
     pathogen = models.CharField(max_length=20)
     description = models.CharField(max_length=140)
-    diseaseTypeId = models.ForeignKey(DiseaseType, default=None, on_delete=models.CASCADE)
+    id = models.ForeignKey(DiseaseType, on_delete=models.CASCADE)
+
+class Country(models.Model):
+    cname = models.CharField(max_length=50, primary_key=True)
+    population = models.BigIntegerField()
 
 class Discover(models.Model):
-    cname = models.OneToOneField(Country, primary_key=True, unique=False,  on_delete=models.CASCADE)
-    disease_code = models.ForeignKey(Disease, on_delete=models.CASCADE)
-    first_enc_date = models.DateField(default= _datetime.datetime.now)
+    cname = models.OneToOneField(Country, models.DO_NOTHING, primary_key=True)
+    disease_code = models.OneToOneField(Disease, models.DO_NOTHING)
+    first_enc_date = models.DateField()
 
 class Users(models.Model):
-    email = models.CharField(max_length=60, unique=True,primary_key=True)
+    email = models.CharField(max_length=60, primary_key=True)
     name = models.CharField(max_length=30)
     surname = models.CharField(max_length=40)
     salary = models.IntegerField()
@@ -29,21 +28,20 @@ class Users(models.Model):
     cname = models.ForeignKey(Country, on_delete=models.CASCADE)
 
 class PublicServant(models.Model):
-    email = models.ForeignKey(Users, on_delete=models.CASCADE, primary_key=True,  unique=False)
+    email = models.OneToOneField(Users, models.DO_NOTHING, primary_key=True)
     department = models.CharField(max_length=50)
 
 class Doctor(models.Model):
-    email = models.ForeignKey(Users, on_delete=models.CASCADE, primary_key=True)
+    email = models.OneToOneField(Users, models.DO_NOTHING, primary_key=True)
     degree = models.CharField(max_length=20)
 
 class Specialize(models.Model):
-    diseaseTypeId = models.ForeignKey(DiseaseType, default=None, on_delete=models.CASCADE,  unique=False, primary_key=True)
-    email = models.ForeignKey(Users, on_delete=models.CASCADE)
+    diseaseid = models.ForeignKey(DiseaseType, on_delete=models.CASCADE)
+    email = models.ForeignKey(Doctor, on_delete=models.CASCADE)
 
 class Record(models.Model):
-    email = models.ForeignKey(PublicServant, on_delete=models.CASCADE, primary_key=True,  unique=False)
+    email = models.ForeignKey(PublicServant, on_delete=models.CASCADE)
     cname = models.ForeignKey(Country, on_delete=models.CASCADE)
     disease_code = models.ForeignKey(Disease, on_delete=models.CASCADE)
-    total_deaths = models.IntegerField(blank=True, null=True)
-    total_patients = models.IntegerField( blank=True, null=True)
-
+    total_deaths = models.IntegerField()
+    total_patients = models.IntegerField()
