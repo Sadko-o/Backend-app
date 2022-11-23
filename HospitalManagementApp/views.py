@@ -32,33 +32,33 @@ from HospitalManagementApp.serializers import *
 #         diseaseType.delete()
 #         return JsonResponse("Deleted successfully",safe=False)
 
-@csrf_exempt
-def diseaseTypeApi(request):
-    if request.method=='GET':
-        diseaseType = DiseaseType.objects.all()
-        diseaseType_serializer = DiseaseTypeSerializer(diseaseType,many=True)
-        res = JsonResponse(diseaseType_serializer.data,safe=False)
-        return res
-    elif request.method=='POST':
-        diseaseType_data=JSONParser().parse(request)
-        diseaseType_serializer=DiseaseTypeSerializer(data=diseaseType_data)
-        if diseaseType_serializer.is_valid():
-            diseaseType_serializer.save()
-            return JsonResponse("Added successfully",safe=False)
-        return JsonResponse("Failed to add", safe=False)
-    elif request.method=='PUT':
-        diseaseType_data=JSONParser().parse(request)
-        diseaseType=DiseaseType.objects.get(id=diseaseType_data['id'])
-        diseaseType_serializer=DiseaseTypeSerializer(diseaseType,data=diseaseType_data)
-        if diseaseType_serializer.is_valid():
-            diseaseType_serializer.save()
-            return JsonResponse("Updates successfully",safe=False)
-        return JsonResponse("Failed to update", safe=False)
-    elif request.method=='DELETE':
-        diseaseType_data=JSONParser().parse(request)
-        diseaseType=DiseaseType.objects.get(id=diseaseType_data['id'])
-        diseaseType.delete()
-        return JsonResponse("Deleted successfully",safe=False)
+# @csrf_exempt
+# def diseaseTypeApi(request):
+#     if request.method=='GET':
+#         diseaseType = DiseaseType.objects.all()
+#         diseaseType_serializer = DiseaseTypeSerializer(diseaseType,many=True)
+#         res = JsonResponse(diseaseType_serializer.data,safe=False)
+#         return res
+#     elif request.method=='POST':
+#         diseaseType_data=JSONParser().parse(request)
+#         diseaseType_serializer=DiseaseTypeSerializer(data=diseaseType_data)
+#         if diseaseType_serializer.is_valid():
+#             diseaseType_serializer.save()
+#             return JsonResponse("Added successfully",safe=False)
+#         return JsonResponse("Failed to add", safe=False)
+#     elif request.method=='PUT':
+#         diseaseType_data=JSONParser().parse(request)
+#         diseaseType=DiseaseType.objects.get(id=diseaseType_data['id'])
+#         diseaseType_serializer=DiseaseTypeSerializer(diseaseType,data=diseaseType_data)
+#         if diseaseType_serializer.is_valid():
+#             diseaseType_serializer.save()
+#             return JsonResponse("Updates successfully",safe=False)
+#         return JsonResponse("Failed to update", safe=False)
+#     elif request.method=='DELETE':
+#         diseaseType_data=JSONParser().parse(request)
+#         diseaseType=DiseaseType.objects.get(id=diseaseType_data['id'])
+#         diseaseType.delete()
+#         return JsonResponse("Deleted successfully",safe=False)
 
 # @csrf_exempt
 # def diseaseTypeApi(request):
