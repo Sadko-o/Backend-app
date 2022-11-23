@@ -2,21 +2,21 @@ from django.db import models
 import _datetime
 
 class DiseaseType(models.Model):
-    diseaseTypeId = models.IntegerField(primary_key=True)
+    diseaseTypeId = models.IntegerField(primary_key=True,  unique=False, null=False)
     diseaseTypeDescription = models.CharField(max_length=140)
 
 class Country(models.Model):
-    cname = models.CharField(max_length=50, primary_key=True)
+    cname = models.CharField(max_length=50,  unique=False, primary_key=True)
     population = models.BigIntegerField()
 
 class Disease(models.Model):
-    disease_code = models.CharField(max_length=50, primary_key=True)
+    disease_code = models.CharField(max_length=50,  unique=False, primary_key=True)
     pathogen = models.CharField(max_length=20)
     description = models.CharField(max_length=140)
     diseaseTypeId = models.ForeignKey(DiseaseType, default=None, on_delete=models.CASCADE)
 
 class Discover(models.Model):
-    cname = models.OneToOneField(Country, primary_key=True, on_delete=models.CASCADE)
+    cname = models.OneToOneField(Country, primary_key=True, unique=False,  on_delete=models.CASCADE)
     disease_code = models.ForeignKey(Disease, on_delete=models.CASCADE)
     first_enc_date = models.DateField(default= _datetime.datetime.now)
 
@@ -29,7 +29,7 @@ class Users(models.Model):
     cname = models.ForeignKey(Country, on_delete=models.CASCADE)
 
 class PublicServant(models.Model):
-    email = models.ForeignKey(Users, on_delete=models.CASCADE, primary_key=True)
+    email = models.ForeignKey(Users, on_delete=models.CASCADE, primary_key=True,  unique=False)
     department = models.CharField(max_length=50)
 
 class Doctor(models.Model):
@@ -37,11 +37,11 @@ class Doctor(models.Model):
     degree = models.CharField(max_length=20)
 
 class Specialize(models.Model):
-    diseaseTypeId = models.ForeignKey(DiseaseType, default=None, on_delete=models.CASCADE, primary_key=True)
+    diseaseTypeId = models.ForeignKey(DiseaseType, default=None, on_delete=models.CASCADE,  unique=False, primary_key=True)
     email = models.ForeignKey(Users, on_delete=models.CASCADE)
 
 class Record(models.Model):
-    email = models.ForeignKey(PublicServant, on_delete=models.CASCADE, primary_key=True)
+    email = models.ForeignKey(PublicServant, on_delete=models.CASCADE, primary_key=True,  unique=False)
     cname = models.ForeignKey(Country, on_delete=models.CASCADE)
     disease_code = models.ForeignKey(Disease, on_delete=models.CASCADE)
     total_deaths = models.IntegerField(blank=True, null=True)
