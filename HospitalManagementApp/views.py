@@ -271,9 +271,9 @@ def query01Api(request):
     if request.method=='GET':
         sql = text(
             '''
-                SELECT disease.disease_code, disease.description
-                FROM disease INNER JOIN discover
-                ON disease.disease_code = discover.disease_code
+                SELECT DISTINCT disease_code, description
+                FROM "HospitalManagementApp_disease"  INNER JOIN "HospitalManagementApp_discover" 
+                ON disease_code = disease_code
                 WHERE pathogen = 'bacteria' AND first_enc_date < '1990-01-01';
             ''')
         res = engine.connect().execute(sql).fetchall()
@@ -285,14 +285,15 @@ def query01Api(request):
 #     if request.method=='GET':
 #         sql = text(
 #             '''
-#                 SELECT users.name, users.surname, doctor.degree
-#                 FROM users
-#                 INNER JOIN doctor  ON users.email = doctor.email
-#                 WHERE doctor.email NOT IN (
-#                     SELECT specialize.email
-#                     FROM specialize
-#                     INNER JOIN diseasetype ON specialize.id = diseasetype.id
-#                     WHERE diseasetype.description = 'infectious');
+                # SELECT DISTINCT  "HospitalManagementApp_users".name, "HospitalManagementApp_users".surname, "HospitalManagementApp_doctor".degree
+                # FROM "HospitalManagementApp_users"
+                # INNER JOIN  "HospitalManagementApp_doctor"  
+                # ON "HospitalManagementApp_users".email = "HospitalManagementApp_doctor".email_id
+                # WHERE "HospitalManagementApp_doctor".email_id NOT IN (
+                #                     SELECT DISTINCT email
+                #                     FROM "HospitalManagementApp_specialize"
+                #                     INNER JOIN "HospitalManagementApp_diseasetype" ON "HospitalManagementApp_specialize".diseaseid_id= "HospitalManagementApp_diseasetype".id
+                #                     WHERE "HospitalManagementApp_diseasetype".description = 'infectious');
 #             ''')
 #         res = engine.connect().execute(sql).fetchall()
 #         return res
@@ -302,15 +303,14 @@ def query01Api(request):
 #     if request.method=='GET':
 #         sql = text(
 #             '''
-
-#                 SELECT DISTINCT U.name, U.surname, D.degree
-#                 FROM users U, doctor D, specialize S
-#                 WHERE U.email = D.email AND D.email IN(
-#                 SELECT S.email
-#                 FROM specialize S
-#                 INNER JOIN diseasetype dt ON S.id = dt.id
-#                 GROUP BY S.email
-#                 HAVING COUNT(*) >=2);
+                # SELECT DISTINCT "HospitalManagementApp_users".name, "HospitalManagementApp_users".surname, "HospitalManagementApp_doctor".degree
+                # FROM "HospitalManagementApp_users", "HospitalManagementApp_doctor", "HospitalManagementApp_specialize"
+                # WHERE "HospitalManagementApp_users".email = "HospitalManagementApp_doctor".email_id AND "HospitalManagementApp_doctor".email_id IN(
+                # SELECT "HospitalManagementApp_specialize".email_id
+                # FROM "HospitalManagementApp_specialize"
+                # INNER JOIN "HospitalManagementApp_diseasetype" ON "HospitalManagementApp_specialize".id = "HospitalManagementApp_diseasetype".id
+                # GROUP BY "HospitalManagementApp_specialize".email_id
+                # HAVING COUNT(*) >=2);
 #             ''')
 #         res = engine.connect().execute(sql).fetchall()
 #         return res
@@ -320,18 +320,19 @@ def query01Api(request):
 #     if request.method=='GET':
 #         sql = text(
 #             '''
-#                 SELECT country.cname, AVG(users.salary)
-#                     FROM country INNER JOIN users
-#                     ON country.cname = users.cname
-#                     INNER JOIN specialize
-#                     ON users.email = specialize.email
-#                     INNER JOIN diseasetype
-#                     ON specialize.id = diseasetype.id
-#                     WHERE specialize.id IN (
-#                         SELECT diseasetype.id
-#                         FROM diseasetype
-#                         WHERE diseasetype.description = 'virology')
-#                     GROUP BY country.cname;
+#     SELECT "HospitalManagementApp_country".cname, AVG("HospitalManagementApp_users".salary)
+#                     FROM "HospitalManagementApp_country" 
+# INNER JOIN "HospitalManagementApp_users"
+#                     ON "HospitalManagementApp_country".cname = "HospitalManagementApp_users".cname_id
+#                     INNER JOIN "HospitalManagementApp_specialize"
+#                     ON "HospitalManagementApp_users".email = "HospitalManagementApp_specialize".email_id
+#                     INNER JOIN "HospitalManagementApp_diseasetype"
+#                     ON "HospitalManagementApp_specialize".diseaseid_id = "HospitalManagementApp_diseasetype".id
+#                     WHERE "HospitalManagementApp_specialize".diseaseid_id IN (
+#                         SELECT "HospitalManagementApp_diseasetype".id
+#                         FROM "HospitalManagementApp_diseasetype"
+#                         WHERE "HospitalManagementApp_diseasetype".description = 'virology')
+#                     GROUP BY "HospitalManagementApp_country".cname;
 #             ''')
 #         res = engine.connect().execute(sql).fetchall()
 #         return res
@@ -342,15 +343,15 @@ def query01Api(request):
 #     if request.method=='GET':
 #         sql = text(
 #             '''
-#                 SELECT publicServant.department, COUNT(*)
-#                 FROM publicServant
-#                 WHERE publicServant.email IN (
-#                     SELECT DISTINCT record.email
-#                     FROM record
-#                     WHERE record.disease_code = 'covid-19'
-#                     GROUP BY record.email
-#                     HAVING COUNT(*) > 1)
-#                 GROUP BY publicServant.department;
+                # SELECT "HospitalManagementApp_publicservant".department, COUNT(*)
+                # FROM "HospitalManagementApp_publicservant"
+                # WHERE "HospitalManagementApp_publicservant".email_id IN (
+                #     SELECT DISTINCT "HospitalManagementApp_record".email_id
+                #     FROM "HospitalManagementApp_record"
+                #     WHERE "HospitalManagementApp_record".disease_code_id = 'covid-19'
+                #     GROUP BY "HospitalManagementApp_record".email_id
+                #     HAVING COUNT(*) > 1)
+                # GROUP BY "HospitalManagementApp_publicservant".department;
 #             ''')
 #         res = engine.connect().execute(sql).fetchall()
 #         return res
@@ -361,16 +362,16 @@ def query01Api(request):
 #     if request.method=='GET':
 #         sql = text(
 #             '''
-#                 UPDATE users 
-#                 SET salary = salary * 2
-#                 WHERE email IN(
-#                     SELECT r.email
-#                     FROM record r
-#                     WHERE r.disease_code = 'covid-19'
-#                     GROUP BY r.email
-#                     HAVING COUNT(*) > 3
-#                     );
-#                     SELECT * FROM users;
+                # UPDATE users 
+                # SET salary = salary * 2
+                # WHERE email IN(
+                #     SELECT r.email
+                #     FROM record r
+                #     WHERE r.disease_code = 'covid-19'
+                #     GROUP BY r.email
+                #     HAVING COUNT(*) > 3
+                #     );
+                #     SELECT * FROM users;
 #             ''')
 #         res = engine.connect().execute(sql).fetchall()
 #         return res
@@ -380,13 +381,19 @@ def query01Api(request):
 # def query07Api(request):
 #     if request.method=='GET':
 #         sql = text(
-#             '''
-#                 DELETE FROM users
-#                 WHERE name LIKE '%%bek%%' 
-#                 OR name LIKE '%%gul%%'
-#                 OR name LIKE '%%Gul%%'
-#                 OR name LIKE '%%Bek%%';
-#                 SELECT * FROM users;
+            # '''
+    # SELECT  * FROM "HospitalManagementApp_users"
+    #             WHERE name LIKE '%%bek%%' 
+    #             OR name LIKE '%%gul%%'
+    #             OR name LIKE '%%Gul%%'
+    #             OR name LIKE '%%Bek%%';
+               
+                # DELETE FROM users
+                # WHERE name LIKE '%%bek%%' 
+                # OR name LIKE '%%gul%%'
+                # OR name LIKE '%%Gul%%'
+                # OR name LIKE '%%Bek%%';
+                # SELECT * FROM users;
 #             ''')
 #         res = engine.connect().execute(sql).fetchall()
 #         return res
@@ -408,13 +415,13 @@ def query01Api(request):
 #     if request.method=='GET':
 #         sql = text(
 #             '''
-#                 SELECT users.email, users.name, publicservant.department
-#                 FROM users
-#                 INNER JOIN publicservant
-#                 ON users.email = publicservant.email
-#                 INNER JOIN record
-#                 ON publicservant.email = record.email
-#                 WHERE record.total_patients > 100000 and record.total_patients <999999
+                # SELECT "HospitalManagementApp_users".email, "HospitalManagementApp_users".name, "HospitalManagementApp_publicservant".department
+                # FROM "HospitalManagementApp_users"
+                # INNER JOIN "HospitalManagementApp_publicservant"
+                # ON "HospitalManagementApp_users".email = "HospitalManagementApp_publicservant".email_id
+                # INNER JOIN "HospitalManagementApp_record"
+                # ON "HospitalManagementApp_publicservant".email_id = "HospitalManagementApp_record".email_id
+                # WHERE "HospitalManagementApp_record".total_patients > 100000 and "HospitalManagementApp_record".total_patients <999999
 #             ''')
 #         res = engine.connect().execute(sql).fetchall()
 #         return res
@@ -425,11 +432,11 @@ def query01Api(request):
 #     if request.method=='GET':
 #         sql = text(
 #             '''
-#                 SELECT cname, sum(total_patients)
-#                     FROM record
-#                     group by cname
-#                     ORDER BY sum(total_patients) DESC
-#                     LIMIT 5;
+                # SELECT "HospitalManagementApp_record".cname_id, SUM("HospitalManagementApp_record".total_patients)
+                #     FROM "HospitalManagementApp_record"
+                #     GROUP BY  "HospitalManagementApp_record".cname_id
+                #     ORDER BY SUM("HospitalManagementApp_record".total_patients) DESC
+                #     LIMIT 5;
 #             ''')
 #         res = engine.connect().execute(sql).fetchall()
 #         return res
@@ -439,13 +446,13 @@ def query01Api(request):
 #     if request.method=='GET':
 #         sql = text(
 #             '''
-#             SELECT diseasetype.description, sum(record.total_patients)
-#                 FROM diseasetype
-#                 left join disease
-#                 on diseasetype.id = disease.id
-#                 left join record
-#                 on disease.disease_code = record.disease_code
-#                 group by (diseasetype.description);
+        #   SELECT  "HospitalManagementApp_diseasetype".description, SUM("HospitalManagementApp_record".total_patients)
+        #         FROM "HospitalManagementApp_diseasetype"
+        #         LEFT JOIN "HospitalManagementApp_disease"
+        #         ON "HospitalManagementApp_diseasetype".id = "HospitalManagementApp_disease".id_id
+        #         LEFT JOIN "HospitalManagementApp_record"
+        #         ON "HospitalManagementApp_disease".disease_code = "HospitalManagementApp_record".disease_code_id
+        #         GROUP BY ("HospitalManagementApp_diseasetype".description);
 #             ''')
 #         res = engine.connect().execute(sql).fetchall()
 #         return res
