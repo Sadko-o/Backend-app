@@ -1,9 +1,12 @@
-# # from django.shortcuts import render
-# from django.views.decorators.csrf import csrf_exempt
-# from rest_framework.parsers import JSONParser
-# from django.http.response import JsonResponse
-# from HospitalManagementApp.models import *
-# from HospitalManagementApp.serializers import *
+from django.core.files.storage import default_storage
+from sqlalchemy import create_engine
+from sqlalchemy import text
+from django.shortcuts import render
+from django.views.decorators.csrf import csrf_exempt
+from rest_framework.parsers import JSONParser
+from django.http.response import JsonResponse
+from HospitalManagementApp.models import *
+from HospitalManagementApp.serializers import *
 
 # # def diseaseTypeApi(request):
 # #     if request.method=='GET':
@@ -336,22 +339,6 @@
 #         return JsonResponse("Deleted Successfully",safe=False)
 
 
-
-
-
-
-from django.core.files.storage import default_storage
-from sqlalchemy import create_engine
-from sqlalchemy import text
-from django.shortcuts import render
-from django.views.decorators.csrf import csrf_exempt
-from rest_framework.parsers import JSONParser
-from django.http.response import JsonResponse
-from HospitalManagementApp.models import *
-from HospitalManagementApp.serializers import *
-
-# Create your views here.
-
 @csrf_exempt
 def diseaseApi(request):
     if request.method=='GET':
@@ -608,13 +595,186 @@ def recordApi(request):
 engine = create_engine('postgresql://postgres:budT4alEoPMiruDRmCuW@containers-us-west-128.railway.app:6076/railway', echo=False)
 
 @csrf_exempt
-def query1Api(request):
+def query01Api(request):
     if request.method=='GET':
         sql = text(
             '''
-            SELECT d.disease_code, d.description
-            FROM Disease d, Discover ds
-            WHERE d.pathogen='bacteria' AND ds.first_enc_date<'1990-01-01' AND d.disease_code=ds.disease_code;
+                SELECT disease.disease_code, disease.description
+                FROM disease INNER JOIN discover
+                ON disease.disease_code = discover.disease_code
+                WHERE pathogen = 'bacteria' AND first_enc_date < '1990-01-01';
             ''')
         res = engine.connect().execute(sql).fetchall()
         return res
+
+    
+@csrf_exempt
+def query02Api(request):
+    if request.method=='GET':
+        sql = text(
+            '''
+                SELECT users.name, users.surname, doctor.degree
+                FROM users
+                INNER JOIN doctor  ON users.email = doctor.email
+                WHERE doctor.email NOT IN (
+                    SELECT specialize.email
+                    FROM specialize
+                    INNER JOIN diseasetype ON specialize.id = diseasetype.id
+                    WHERE diseasetype.description = 'infectious');
+            ''')
+        res = engine.connect().execute(sql).fetchall()
+        return res
+    
+@csrf_exempt
+def query03Api(request):
+    if request.method=='GET':
+        sql = text(
+            '''
+
+                SELECT DISTINCT U.name, U.surname, D.degree
+                FROM users U, doctor D, specialize S
+                WHERE U.email = D.email AND D.email IN(
+                SELECT S.email
+                FROM specialize S
+                INNER JOIN diseasetype dt ON S.id = dt.id
+                GROUP BY S.email
+                HAVING COUNT(*) >=2);
+            ''')
+        res = engine.connect().execute(sql).fetchall()
+        return res
+
+@csrf_exempt
+def query04Api(request):
+    if request.method=='GET':
+        sql = text(
+            '''
+                SELECT country.cname, AVG(users.salary)
+                    FROM country INNER JOIN users
+                    ON country.cname = users.cname
+                    INNER JOIN specialize
+                    ON users.email = specialize.email
+                    INNER JOIN diseasetype
+                    ON specialize.id = diseasetype.id
+                    WHERE specialize.id IN (
+                        SELECT diseasetype.id
+                        FROM diseasetype
+                        WHERE diseasetype.description = 'virology')
+                    GROUP BY country.cname;
+            ''')
+        res = engine.connect().execute(sql).fetchall()
+        return res
+    
+
+@csrf_exempt
+def query05Api(request):
+    if request.method=='GET':
+        sql = text(
+            '''
+                SELECT publicServant.department, COUNT(*)
+                FROM publicServant
+                WHERE publicServant.email IN (
+                    SELECT DISTINCT record.email
+                    FROM record
+                    WHERE record.disease_code = 'covid-19'
+                    GROUP BY record.email
+                    HAVING COUNT(*) > 1)
+                GROUP BY publicServant.department;
+            ''')
+        res = engine.connect().execute(sql).fetchall()
+        return res
+    
+
+@csrf_exempt
+def query06Api(request):
+    if request.method=='GET':
+        sql = text(
+            '''
+                UPDATE users 
+                SET salary = salary * 2
+                WHERE email IN(
+                    SELECT r.email
+                    FROM record r
+                    WHERE r.disease_code = 'covid-19'
+                    GROUP BY r.email
+                    HAVING COUNT(*) > 3
+                    );
+                    SELECT * FROM users;
+            ''')
+        res = engine.connect().execute(sql).fetchall()
+        return res
+    
+
+@csrf_exempt
+def query07Api(request):
+    if request.method=='GET':
+        sql = text(
+            '''
+                DELETE FROM users
+                WHERE name LIKE '%%bek%%' 
+                OR name LIKE '%%gul%%'
+                OR name LIKE '%%Gul%%'
+                OR name LIKE '%%Bek%%';
+                SELECT * FROM users;
+            ''')
+        res = engine.connect().execute(sql).fetchall()
+        return res
+    
+
+@csrf_exempt
+def query08Api(request):
+    if request.method=='GET':
+        sql = text(
+            '''
+                CREATE INDEX "idx_pathogen"
+                ON  disease(pathogen);
+            ''')
+        res = engine.connect().execute(sql).fetchall()
+        return res
+    
+@csrf_exempt
+def query09Api(request):
+    if request.method=='GET':
+        sql = text(
+            '''
+                SELECT users.email, users.name, publicservant.department
+                FROM users
+                INNER JOIN publicservant
+                ON users.email = publicservant.email
+                INNER JOIN record
+                ON publicservant.email = record.email
+                WHERE record.total_patients > 100000 and record.total_patients <999999
+            ''')
+        res = engine.connect().execute(sql).fetchall()
+        return res
+
+
+@csrf_exempt
+def query10Api(request):
+    if request.method=='GET':
+        sql = text(
+            '''
+                SELECT cname, sum(total_patients)
+                    FROM record
+                    group by cname
+                    ORDER BY sum(total_patients) DESC
+                    LIMIT 5;
+            ''')
+        res = engine.connect().execute(sql).fetchall()
+        return res
+    
+@csrf_exempt
+def query11Api(request):
+    if request.method=='GET':
+        sql = text(
+            '''
+            SELECT diseasetype.description, sum(record.total_patients)
+                FROM diseasetype
+                left join disease
+                on diseasetype.id = disease.id
+                left join record
+                on disease.disease_code = record.disease_code
+                group by (diseasetype.description);
+            ''')
+        res = engine.connect().execute(sql).fetchall()
+        return res
+    

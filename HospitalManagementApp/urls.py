@@ -38,5 +38,9 @@ urlpatterns=[
     # Record
     re_path(r'^record$',views.recordApi),
     re_path(r'^record/([0-9]+)$',views.recordApi),
+
+    # Queries
+    re_path(r'^query01$',views.query01Api),
+    re_path(r'^query01/([0-9]+)$',views.query01Api),
 ]
 
