@@ -8,7 +8,7 @@ from django.http.response import JsonResponse
 from HospitalManagementApp.models import *
 from HospitalManagementApp.serializers import *
 import simplejson
-import django.db as connection
+from django.db import connection
 
 engine = create_engine('postgresql://postgres:ZDPPgZRMqYytPKqutZms@containers-us-west-36.railway.app:5832/railway', echo=False)
 
