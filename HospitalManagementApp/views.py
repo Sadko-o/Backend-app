@@ -7,8 +7,8 @@ from rest_framework.parsers import JSONParser
 from django.http.response import JsonResponse
 from HospitalManagementApp.models import *
 from HospitalManagementApp.serializers import *
-import django.db as connection
 import simplejson
+import django.db as connection
 
 engine = create_engine('postgresql://postgres:ZDPPgZRMqYytPKqutZms@containers-us-west-36.railway.app:5832/railway', echo=False)
 
@@ -270,7 +270,7 @@ def recordApi(request):
 
 @csrf_exempt
 def query01Api(request):
-    if request.method=='GET':
+    with connection.cursor() as cursor:
         sql = text(
             '''
                 SELECT DISTINCT disease_code, description
@@ -278,11 +278,22 @@ def query01Api(request):
                 ON disease_code = disease_code
                 WHERE pathogen = 'bacteria' AND first_enc_date < '1990-01-01';
             ''')
-        res = simplejson.dumps([dict(r) for r in connection.execute(sql)])
+        cursor.execute(sql)
+        res = cursor.fetchall()
         return JsonResponse(res, safe=False)
+        # res = simplejson.dumps([dict(r) for r in connection.execute(sql)])
+        # return JsonResponse(res, safe=False)
         # res = engine.connect().execute(sql).fetchall()
         # return res
-    
+
+    # with connection.cursor() as cursor:
+    #     # List the disease code and the description of diseases that are caused by “bacteria” (pathogen) and were discovered before 1990
+    #     q = 'SELECT "Disease"."disease code", description FROM "Disease" INNER JOIN "Discover" ON "Disease"."disease code" = "Discover"."disease code" WHERE "Disease".pathogen = {pathogen} AND "Discover"."first enc date" < {date}'.format(pathogen = "'bacteria'", date = "'1990-1-1'")
+    #     cursor.execute(q)
+    #     return HttpResponse(
+    #     simplejson.dumps(dictfetchall(cursor)),
+    #     content_type = 'application/javascript; charset=utf8'
+    # )
 
 # @csrf_exempt
 # def query1(request):
