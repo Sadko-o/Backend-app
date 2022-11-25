@@ -1,7 +1,7 @@
 from django.core.files.storage import default_storage
 from sqlalchemy import create_engine
 from sqlalchemy import text
-from django.shortcuts import render
+from django.shortcuts import HttpResponse, render
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.parsers import JSONParser
 from django.http.response import JsonResponse
@@ -271,29 +271,12 @@ def recordApi(request):
 @csrf_exempt
 def query01Api(request):
     with connection.cursor() as cursor:
-        sql = text(
-            '''
-                SELECT DISTINCT disease_code, description
-                FROM "HospitalManagementApp_disease"  INNER JOIN "HospitalManagementApp_discover" 
-                ON disease_code = disease_code
-                WHERE pathogen = 'bacteria' AND first_enc_date < '1990-01-01';
-            ''')
+        sql = 'SELECT DISTINCT disease_code, description FROM "HospitalManagementApp_disease"  INNER JOIN "HospitalManagementApp_discover"  ON disease_code = disease_code WHERE pathogen = {pathogen} AND first_enc_date < {date}'.format(pathogen = 'bacteria', date =  '1990-01-01')
         cursor.execute(sql)
-        res = cursor.fetchall()
-        return JsonResponse(res, safe=False)
-        # res = simplejson.dumps([dict(r) for r in connection.execute(sql)])
-        # return JsonResponse(res, safe=False)
-        # res = engine.connect().execute(sql).fetchall()
-        # return res
-
-    # with connection.cursor() as cursor:
-    #     # List the disease code and the description of diseases that are caused by “bacteria” (pathogen) and were discovered before 1990
-    #     q = 'SELECT "Disease"."disease code", description FROM "Disease" INNER JOIN "Discover" ON "Disease"."disease code" = "Discover"."disease code" WHERE "Disease".pathogen = {pathogen} AND "Discover"."first enc date" < {date}'.format(pathogen = "'bacteria'", date = "'1990-1-1'")
-    #     cursor.execute(q)
-    #     return HttpResponse(
-    #     simplejson.dumps(dictfetchall(cursor)),
-    #     content_type = 'application/javascript; charset=utf8'
-    # )
+        return HttpResponse(
+            simplejson.dumps( (cursor)),
+            content_type = 'application/javascript; charset=utf8'
+        )
 
 # @csrf_exempt
 # def query1(request):
