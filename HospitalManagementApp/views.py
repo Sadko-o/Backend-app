@@ -269,14 +269,13 @@ def recordApi(request):
 
 
 @csrf_exempt
-def query01Api(request):
+def query01Api():
     with connection.cursor() as cursor:
         sql = 'SELECT DISTINCT disease_code, description FROM "HospitalManagementApp_disease"  INNER JOIN "HospitalManagementApp_discover"  ON disease_code = disease_code WHERE pathogen = {pathogen} AND first_enc_date < {date}'.format(pathogen = "'bacteria'", date =  "'1990-01-01'")
         cursor.execute(sql)
         return HttpResponse(
-            simplejson.dumps( (cursor)),
-            content_type = 'application/javascript; charset=utf8'
-        )
+            simplejson.dumps(cursor.fetchall(), use_decimal = True))
+
 
 # @csrf_exempt
 # def query1(request):
