@@ -44,20 +44,20 @@ urlpatterns=[
     re_path(r'^query01/([0-9]+)$',views.query01Api),
     
 
-    re_path(r'^query02$',views.query02Api),
-    re_path(r'^query02/([0-9]+)$',views.query02Api),
+    # re_path(r'^query02$',views.query02Api),
+    # re_path(r'^query02/([0-9]+)$',views.query02Api),
 
-    re_path(r'^query03$',views.query03Api),
-    re_path(r'^query03/([0-9]+)$',views.query03Api),
+    # re_path(r'^query03$',views.query03Api),
+    # re_path(r'^query03/([0-9]+)$',views.query03Api),
 
-    re_path(r'^query04$',views.query04Api),
-    re_path(r'^query04/([0-9]+)$',views.query04Api),
+    # re_path(r'^query04$',views.query04Api),
+    # re_path(r'^query04/([0-9]+)$',views.query04Api),
 
-    re_path(r'^query05$',views.query05Api),
-    re_path(r'^query05/([0-9]+)$',views.query05Api),
+    # re_path(r'^query05$',views.query05Api),
+    # re_path(r'^query05/([0-9]+)$',views.query05Api),
 
-    re_path(r'^query07$',views.query07Api),
-    re_path(r'^query07/([0-9]+)$',views.query07Api),
+    # re_path(r'^query07$',views.query07Api),
+    # re_path(r'^query07/([0-9]+)$',views.query07Api),
 
 ]
 
