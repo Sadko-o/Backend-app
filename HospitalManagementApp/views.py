@@ -279,7 +279,7 @@ def query01Api(request):
 @csrf_exempt
 def query02Api(request):
      with connection.cursor() as cursor:
-        sql = 'SELECT DISTINCT  "HospitalManagementApp_users".name, "HospitalManagementApp_users".surname, "HospitalManagementApp_doctor".degree FROM "HospitalManagementApp_users" INNER JOIN  "HospitalManagementApp_doctor"   ON "HospitalManagementApp_users".email = "HospitalManagementApp_doctor".email_id WHERE "HospitalManagementApp_doctor".email_id NOT IN ( SELECT DISTINCT email FROM "HospitalManagementApp_specialize" NNER JOIN "HospitalManagementApp_diseasetype" ON "HospitalManagementApp_specialize".diseaseid_id= "HospitalManagementApp_diseasetype".id WHERE "HospitalManagementApp_diseasetype".description = {description})'.format(description = "'infectious'")
+        sql = 'SELECT DISTINCT  "HospitalManagementApp_users".name, "HospitalManagementApp_users".surname, "HospitalManagementApp_doctor".degree FROM "HospitalManagementApp_users" INNER JOIN  "HospitalManagementApp_doctor" ON "HospitalManagementApp_users".email = "HospitalManagementApp_doctor".email_id WHERE "HospitalManagementApp_doctor".email_id NOT IN ( SELECT DISTINCT email FROM "HospitalManagementApp_specialize" INNER JOIN "HospitalManagementApp_diseasetype" ON "HospitalManagementApp_specialize".diseaseid_id= "HospitalManagementApp_diseasetype".id WHERE "HospitalManagementApp_diseasetype".description = {description})'.format(description = "'infectious'")
         cursor.execute(sql)
         return HttpResponse(
             simplejson.dumps(cursor.fetchall(), use_decimal = True))
@@ -287,17 +287,7 @@ def query02Api(request):
 @csrf_exempt
 def query03Api(request):
     with connection.cursor() as cursor:
-        sql = text(
-            '''
-                SELECT DISTINCT "HospitalManagementApp_users".name, "HospitalManagementApp_users".surname, "HospitalManagementApp_doctor".degree
-                FROM "HospitalManagementApp_users", "HospitalManagementApp_doctor", "HospitalManagementApp_specialize"
-                WHERE "HospitalManagementApp_users".email = "HospitalManagementApp_doctor".email_id AND "HospitalManagementApp_doctor".email_id IN(
-                SELECT "HospitalManagementApp_specialize".email_id
-                FROM "HospitalManagementApp_specialize"
-                INNER JOIN "HospitalManagementApp_diseasetype" ON "HospitalManagementApp_specialize".id = "HospitalManagementApp_diseasetype".id
-                GROUP BY "HospitalManagementApp_specialize".email_id
-                HAVING COUNT(*) >=2);
-            ''')
+        sql = 'SELECT DISTINCT "HospitalManagementApp_users".name, "HospitalManagementApp_users".surname, "HospitalManagementApp_doctor".degree FROM "HospitalManagementApp_users", "HospitalManagementApp_doctor", "HospitalManagementApp_specialize" WHERE "HospitalManagementApp_users".email = "HospitalManagementApp_doctor".email_id AND "HospitalManagementApp_doctor".email_id IN( SELECT "HospitalManagementApp_specialize".email_id FROM "HospitalManagementApp_specialize"  INNER JOIN "HospitalManagementApp_diseasetype" ON "HospitalManagementApp_specialize".id = "HospitalManagementApp_diseasetype".id GROUP BY "HospitalManagementApp_specialize".email_id HAVING COUNT(*) >=2);'
         cursor.execute(sql)
         return HttpResponse(
             simplejson.dumps(cursor.fetchall(), use_decimal = True))
@@ -305,22 +295,7 @@ def query03Api(request):
 @csrf_exempt
 def query04Api(request):
     with connection.cursor() as cursor:
-        sql = text(
-            '''
-                    SELECT "HospitalManagementApp_country".cname, AVG("HospitalManagementApp_users".salary)
-                    FROM "HospitalManagementApp_country" 
-                    INNER JOIN "HospitalManagementApp_users"
-                    ON "HospitalManagementApp_country".cname = "HospitalManagementApp_users".cname_id
-                    INNER JOIN "HospitalManagementApp_specialize"
-                    ON "HospitalManagementApp_users".email = "HospitalManagementApp_specialize".email_id
-                    INNER JOIN "HospitalManagementApp_diseasetype"
-                    ON "HospitalManagementApp_specialize".diseaseid_id = "HospitalManagementApp_diseasetype".id
-                    WHERE "HospitalManagementApp_specialize".diseaseid_id IN (
-                        SELECT "HospitalManagementApp_diseasetype".id
-                        FROM "HospitalManagementApp_diseasetype"
-                        WHERE "HospitalManagementApp_diseasetype".description = 'virology')
-                    GROUP BY "HospitalManagementApp_country".cname;
-            ''')
+        sql = 'SELECT "HospitalManagementApp_country".cname, AVG("HospitalManagementApp_users".salary) FROM "HospitalManagementApp_country"  INNER JOIN "HospitalManagementApp_users" ON "HospitalManagementApp_country".cname = "HospitalManagementApp_users".cname_id INNER JOIN "HospitalManagementApp_specialize" ON "HospitalManagementApp_users".email = "HospitalManagementApp_specialize".email_id INNER JOIN "HospitalManagementApp_diseasetype"  ON "HospitalManagementApp_specialize".diseaseid_id = "HospitalManagementApp_diseasetype".id WHERE "HospitalManagementApp_specialize".diseaseid_id IN (  SELECT "HospitalManagementApp_diseasetype".id FROM "HospitalManagementApp_diseasetype"  WHERE "HospitalManagementApp_diseasetype".description = {description}) GROUP BY "HospitalManagementApp_country".cname;'.format(description = "'virology'")
         cursor.execute(sql)
         return HttpResponse(
             simplejson.dumps(cursor.fetchall(), use_decimal = True))
@@ -416,14 +391,7 @@ def query09Api(request):
 @csrf_exempt
 def query10Api(request):
     with connection.cursor() as cursor:
-        sql = text(
-            '''
-                SELECT "HospitalManagementApp_record".cname_id, SUM("HospitalManagementApp_record".total_patients)
-                    FROM "HospitalManagementApp_record"
-                    GROUP BY  "HospitalManagementApp_record".cname_id
-                    ORDER BY SUM("HospitalManagementApp_record".total_patients) DESC
-                    LIMIT 5;
-            ''')
+        sql = 'SELECT "HospitalManagementApp_record".cname_id, SUM("HospitalManagementApp_record".total_patients) FROM "HospitalManagementApp_record"  GROUP BY  "HospitalManagementApp_record".cname_id ORDER BY SUM("HospitalManagementApp_record".total_patients) DESC LIMIT 5;'
         cursor.execute(sql)
         return HttpResponse(
             simplejson.dumps(cursor.fetchall(), use_decimal = True))
