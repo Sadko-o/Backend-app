@@ -275,189 +275,173 @@ def query01Api(request):
         cursor.execute(sql)
         return HttpResponse(
             simplejson.dumps(cursor.fetchall(), use_decimal = True))
-
-
-# @csrf_exempt
-# def query1(request):
-#     with connection.cursor() as cursor:
-#         # List the disease code and the description of diseases that are caused by “bacteria” (pathogen) and were discovered before 1990
-#         q = 'SELECT "Disease"."disease code", description FROM "Disease" INNER JOIN "Discover" ON "Disease"."disease code" = "Discover"."disease code" WHERE "Disease".pathogen = {pathogen} AND "Discover"."first enc date" < {date}'.format(pathogen = "'bacteria'", date = "'1990-1-1'")
-#         cursor.execute(q)
-#         return HttpResponse(
-#         simplejson.dumps(dictfetchall(cursor)),
-#         content_type = 'application/javascript; charset=utf8'
-#     )
-
     
+@csrf_exempt
+def query02Api(request):
+     with connection.cursor() as cursor:
+        sql = 'SELECT DISTINCT  "HospitalManagementApp_users".name, "HospitalManagementApp_users".surname, "HospitalManagementApp_doctor".degree FROM "HospitalManagementApp_users" INNER JOIN  "HospitalManagementApp_doctor"   ON "HospitalManagementApp_users".email = "HospitalManagementApp_doctor".email_id WHERE "HospitalManagementApp_doctor".email_id NOT IN ( SELECT DISTINCT email FROM "HospitalManagementApp_specialize" NNER JOIN "HospitalManagementApp_diseasetype" ON "HospitalManagementApp_specialize".diseaseid_id= "HospitalManagementApp_diseasetype".id WHERE "HospitalManagementApp_diseasetype".description = {description})'.format(description = "'infectious'")
+        cursor.execute(sql)
+        return HttpResponse(
+            simplejson.dumps(cursor.fetchall(), use_decimal = True))
+    
+@csrf_exempt
+def query03Api(request):
+    with connection.cursor() as cursor:
+        sql = text(
+            '''
+                SELECT DISTINCT "HospitalManagementApp_users".name, "HospitalManagementApp_users".surname, "HospitalManagementApp_doctor".degree
+                FROM "HospitalManagementApp_users", "HospitalManagementApp_doctor", "HospitalManagementApp_specialize"
+                WHERE "HospitalManagementApp_users".email = "HospitalManagementApp_doctor".email_id AND "HospitalManagementApp_doctor".email_id IN(
+                SELECT "HospitalManagementApp_specialize".email_id
+                FROM "HospitalManagementApp_specialize"
+                INNER JOIN "HospitalManagementApp_diseasetype" ON "HospitalManagementApp_specialize".id = "HospitalManagementApp_diseasetype".id
+                GROUP BY "HospitalManagementApp_specialize".email_id
+                HAVING COUNT(*) >=2);
+            ''')
+        cursor.execute(sql)
+        return HttpResponse(
+            simplejson.dumps(cursor.fetchall(), use_decimal = True))
+
+@csrf_exempt
+def query04Api(request):
+    with connection.cursor() as cursor:
+        sql = text(
+            '''
+                    SELECT "HospitalManagementApp_country".cname, AVG("HospitalManagementApp_users".salary)
+                    FROM "HospitalManagementApp_country" 
+                    INNER JOIN "HospitalManagementApp_users"
+                    ON "HospitalManagementApp_country".cname = "HospitalManagementApp_users".cname_id
+                    INNER JOIN "HospitalManagementApp_specialize"
+                    ON "HospitalManagementApp_users".email = "HospitalManagementApp_specialize".email_id
+                    INNER JOIN "HospitalManagementApp_diseasetype"
+                    ON "HospitalManagementApp_specialize".diseaseid_id = "HospitalManagementApp_diseasetype".id
+                    WHERE "HospitalManagementApp_specialize".diseaseid_id IN (
+                        SELECT "HospitalManagementApp_diseasetype".id
+                        FROM "HospitalManagementApp_diseasetype"
+                        WHERE "HospitalManagementApp_diseasetype".description = 'virology')
+                    GROUP BY "HospitalManagementApp_country".cname;
+            ''')
+        cursor.execute(sql)
+        return HttpResponse(
+            simplejson.dumps(cursor.fetchall(), use_decimal = True))
+    
+
+@csrf_exempt
+def query05Api(request):
+    with connection.cursor() as cursor:
+        sql = text(
+            '''
+                SELECT "HospitalManagementApp_publicservant".department, COUNT(*)
+                FROM "HospitalManagementApp_publicservant"
+                WHERE "HospitalManagementApp_publicservant".email_id IN (
+                    SELECT DISTINCT "HospitalManagementApp_record".email_id
+                    FROM "HospitalManagementApp_record"
+                    WHERE "HospitalManagementApp_record".disease_code_id = 'covid-19'
+                    GROUP BY "HospitalManagementApp_record".email_id
+                    HAVING COUNT(*) > 1)
+                GROUP BY "HospitalManagementApp_publicservant".department;
+            ''')
+        cursor.execute(sql)
+        return HttpResponse(
+            simplejson.dumps(cursor.fetchall(), use_decimal = True))
+    
+
 # @csrf_exempt
-# def query02Api(request):
+# def query06Api(request):
 #     if request.method=='GET':
 #         sql = text(
 #             '''
-#                 SELECT DISTINCT  "HospitalManagementApp_users".name, "HospitalManagementApp_users".surname, "HospitalManagementApp_doctor".degree
-#                 FROM "HospitalManagementApp_users"
-#                 INNER JOIN  "HospitalManagementApp_doctor"  
-#                 ON "HospitalManagementApp_users".email = "HospitalManagementApp_doctor".email_id
-#                 WHERE "HospitalManagementApp_doctor".email_id NOT IN (
-#                                     SELECT DISTINCT email
-#                                     FROM "HospitalManagementApp_specialize"
-#                                     INNER JOIN "HospitalManagementApp_diseasetype" ON "HospitalManagementApp_specialize".diseaseid_id= "HospitalManagementApp_diseasetype".id
-#                                     WHERE "HospitalManagementApp_diseasetype".description = 'infectious');
+                # UPDATE users 
+                # SET salary = salary * 2
+                # WHERE email IN(
+                #     SELECT r.email
+                #     FROM record r
+                #     WHERE r.disease_code = 'covid-19'
+                #     GROUP BY r.email
+                #     HAVING COUNT(*) > 3
+                #     );
+                #     SELECT * FROM users;
 #             ''')
 #         res = engine.connect().execute(sql).fetchall()
 #         return res
     
-# @csrf_exempt
-# def query03Api(request):
-#     if request.method=='GET':
-#         sql = text(
-#             '''
-#                 SELECT DISTINCT "HospitalManagementApp_users".name, "HospitalManagementApp_users".surname, "HospitalManagementApp_doctor".degree
-#                 FROM "HospitalManagementApp_users", "HospitalManagementApp_doctor", "HospitalManagementApp_specialize"
-#                 WHERE "HospitalManagementApp_users".email = "HospitalManagementApp_doctor".email_id AND "HospitalManagementApp_doctor".email_id IN(
-#                 SELECT "HospitalManagementApp_specialize".email_id
-#                 FROM "HospitalManagementApp_specialize"
-#                 INNER JOIN "HospitalManagementApp_diseasetype" ON "HospitalManagementApp_specialize".id = "HospitalManagementApp_diseasetype".id
-#                 GROUP BY "HospitalManagementApp_specialize".email_id
-#                 HAVING COUNT(*) >=2);
-#             ''')
-#         res = engine.connect().execute(sql).fetchall()
-#         return res
 
-# @csrf_exempt
-# def query04Api(request):
-#     if request.method=='GET':
-#         sql = text(
-#             '''
-#                     SELECT "HospitalManagementApp_country".cname, AVG("HospitalManagementApp_users".salary)
-#                     FROM "HospitalManagementApp_country" 
-#                     INNER JOIN "HospitalManagementApp_users"
-#                     ON "HospitalManagementApp_country".cname = "HospitalManagementApp_users".cname_id
-#                     INNER JOIN "HospitalManagementApp_specialize"
-#                     ON "HospitalManagementApp_users".email = "HospitalManagementApp_specialize".email_id
-#                     INNER JOIN "HospitalManagementApp_diseasetype"
-#                     ON "HospitalManagementApp_specialize".diseaseid_id = "HospitalManagementApp_diseasetype".id
-#                     WHERE "HospitalManagementApp_specialize".diseaseid_id IN (
-#                         SELECT "HospitalManagementApp_diseasetype".id
-#                         FROM "HospitalManagementApp_diseasetype"
-#                         WHERE "HospitalManagementApp_diseasetype".description = 'virology')
-#                     GROUP BY "HospitalManagementApp_country".cname;
-#             ''')
-#         res = engine.connect().execute(sql).fetchall()
-#         return res
-    
-
-# @csrf_exempt
-# def query05Api(request):
-#     if request.method=='GET':
-#         sql = text(
-#             '''
-#                 SELECT "HospitalManagementApp_publicservant".department, COUNT(*)
-#                 FROM "HospitalManagementApp_publicservant"
-#                 WHERE "HospitalManagementApp_publicservant".email_id IN (
-#                     SELECT DISTINCT "HospitalManagementApp_record".email_id
-#                     FROM "HospitalManagementApp_record"
-#                     WHERE "HospitalManagementApp_record".disease_code_id = 'covid-19'
-#                     GROUP BY "HospitalManagementApp_record".email_id
-#                     HAVING COUNT(*) > 1)
-#                 GROUP BY "HospitalManagementApp_publicservant".department;
-#             ''')
-#         res = engine.connect().execute(sql).fetchall()
-#         return res
-    
-
-# # @csrf_exempt
-# # def query06Api(request):
-# #     if request.method=='GET':
-# #         sql = text(
-# #             '''
-#                 # UPDATE users 
-#                 # SET salary = salary * 2
-#                 # WHERE email IN(
-#                 #     SELECT r.email
-#                 #     FROM record r
-#                 #     WHERE r.disease_code = 'covid-19'
-#                 #     GROUP BY r.email
-#                 #     HAVING COUNT(*) > 3
-#                 #     );
-#                 #     SELECT * FROM users;
-# #             ''')
-# #         res = engine.connect().execute(sql).fetchall()
-# #         return res
-    
-
-# @csrf_exempt
-# def query07Api(request):
-#     if request.method=='GET':
-#         sql = text(
-#             # delete 
-#             '''
-#     SELECT  * FROM "HospitalManagementApp_users"
-#                 WHERE name LIKE '%%bek%%' 
-#                 OR name LIKE '%%gul%%'
-#                 OR name LIKE '%%Gul%%'
-#                 OR name LIKE '%%Bek%%';
+@csrf_exempt
+def query07Api(request):
+    with connection.cursor() as cursor:
+        sql = text(
+            # delete 
+            '''
+    SELECT  * FROM "HospitalManagementApp_users"
+                WHERE name LIKE '%%bek%%' 
+                OR name LIKE '%%gul%%'
+                OR name LIKE '%%Gul%%'
+                OR name LIKE '%%Bek%%';
                
+            ''')
+        cursor.execute(sql)
+        return HttpResponse(
+            simplejson.dumps(cursor.fetchall(), use_decimal = True))
+    
+
+# @csrf_exempt
+# def query08Api(request):
+#     if request.method=='GET':
+#         sql = text(
+#             '''
+#                 CREATE INDEX "idx_pathogen"
+#                 ON  disease(pathogen);
 #             ''')
 #         res = engine.connect().execute(sql).fetchall()
 #         return res
     
+@csrf_exempt
+def query09Api(request):
+    with connection.cursor() as cursor:
+        sql = text(
+            '''
+                SELECT "HospitalManagementApp_users".email, "HospitalManagementApp_users".name, "HospitalManagementApp_publicservant".department
+                FROM "HospitalManagementApp_users"
+                INNER JOIN "HospitalManagementApp_publicservant"
+                ON "HospitalManagementApp_users".email = "HospitalManagementApp_publicservant".email_id
+                INNER JOIN "HospitalManagementApp_record"
+                ON "HospitalManagementApp_publicservant".email_id = "HospitalManagementApp_record".email_id
+                WHERE "HospitalManagementApp_record".total_patients > 100000 and "HospitalManagementApp_record".total_patients <999999
+            ''')
+        cursor.execute(sql)
+        return HttpResponse(
+            simplejson.dumps(cursor.fetchall(), use_decimal = True))
 
-# # @csrf_exempt
-# # def query08Api(request):
-# #     if request.method=='GET':
-# #         sql = text(
-# #             '''
-# #                 CREATE INDEX "idx_pathogen"
-# #                 ON  disease(pathogen);
-# #             ''')
-# #         res = engine.connect().execute(sql).fetchall()
-# #         return res
+
+@csrf_exempt
+def query10Api(request):
+    with connection.cursor() as cursor:
+        sql = text(
+            '''
+                SELECT "HospitalManagementApp_record".cname_id, SUM("HospitalManagementApp_record".total_patients)
+                    FROM "HospitalManagementApp_record"
+                    GROUP BY  "HospitalManagementApp_record".cname_id
+                    ORDER BY SUM("HospitalManagementApp_record".total_patients) DESC
+                    LIMIT 5;
+            ''')
+        cursor.execute(sql)
+        return HttpResponse(
+            simplejson.dumps(cursor.fetchall(), use_decimal = True))
     
-# @csrf_exempt
-# def query09Api(request):
-#     if request.method=='GET':
-#         sql = text(
-#             '''
-#                 SELECT "HospitalManagementApp_users".email, "HospitalManagementApp_users".name, "HospitalManagementApp_publicservant".department
-#                 FROM "HospitalManagementApp_users"
-#                 INNER JOIN "HospitalManagementApp_publicservant"
-#                 ON "HospitalManagementApp_users".email = "HospitalManagementApp_publicservant".email_id
-#                 INNER JOIN "HospitalManagementApp_record"
-#                 ON "HospitalManagementApp_publicservant".email_id = "HospitalManagementApp_record".email_id
-#                 WHERE "HospitalManagementApp_record".total_patients > 100000 and "HospitalManagementApp_record".total_patients <999999
-#             ''')
-#         res = engine.connect().execute(sql).fetchall()
-#         return res
-
-
-# @csrf_exempt
-# def query10Api(request):
-#     if request.method=='GET':
-#         sql = text(
-#             '''
-#                 SELECT "HospitalManagementApp_record".cname_id, SUM("HospitalManagementApp_record".total_patients)
-#                     FROM "HospitalManagementApp_record"
-#                     GROUP BY  "HospitalManagementApp_record".cname_id
-#                     ORDER BY SUM("HospitalManagementApp_record".total_patients) DESC
-#                     LIMIT 5;
-#             ''')
-#         res = engine.connect().execute(sql).fetchall()
-#         return res
-    
-# @csrf_exempt
-# def query11Api(request):
-#     if request.method=='GET':
-#         sql = text(
-#             '''
-#           SELECT  "HospitalManagementApp_diseasetype".description, SUM("HospitalManagementApp_record".total_patients)
-#                 FROM "HospitalManagementApp_diseasetype"
-#                 LEFT JOIN "HospitalManagementApp_disease"
-#                 ON "HospitalManagementApp_diseasetype".id = "HospitalManagementApp_disease".id_id
-#                 LEFT JOIN "HospitalManagementApp_record"
-#                 ON "HospitalManagementApp_disease".disease_code = "HospitalManagementApp_record".disease_code_id
-#                 GROUP BY ("HospitalManagementApp_diseasetype".description);
-#             ''')
-#         res = engine.connect().execute(sql).fetchall()
-#         return res
+@csrf_exempt
+def query11Api(request):
+    with connection.cursor() as cursor:
+        sql = text(
+            '''
+          SELECT  "HospitalManagementApp_diseasetype".description, SUM("HospitalManagementApp_record".total_patients)
+                FROM "HospitalManagementApp_diseasetype"
+                LEFT JOIN "HospitalManagementApp_disease"
+                ON "HospitalManagementApp_diseasetype".id = "HospitalManagementApp_disease".id_id
+                LEFT JOIN "HospitalManagementApp_record"
+                ON "HospitalManagementApp_disease".disease_code = "HospitalManagementApp_record".disease_code_id
+                GROUP BY ("HospitalManagementApp_diseasetype".description);
+            ''')
+        cursor.execute(sql)
+        return HttpResponse(
+            simplejson.dumps(cursor.fetchall(), use_decimal = True))
     
